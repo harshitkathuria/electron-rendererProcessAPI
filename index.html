@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'">
+    <title>Hello World!</title>
+    <style>
+      html { font-family: sans-serif; background: #a6b0da; color: #9FEAF9; }
+    </style>
+  </head>
+  <body>
+
+    <button id="ipc-btn">Talk To Main Process</button><br><br>
+
+    <button id="dialog-btn">Dialog Btn</button><br>
+    <button id="browser-btn">Browser Window Btn</button><br>
+    <button id="fullscreen-btn">Fullscreen</button><br>
+    <button id="quit-btn">Quit App</button><br>
+    <br><br>
+
+    <a href="#" onclick="newWin()">New Window</a><br>
+    <a href="#" onclick="closeWin()">Close Window</a><br>
+    <a href="#" onclick="winStyle()">Bad Fonts</a><br>
+
+    <!-- <img src="https://placekitten.com/450/300" alt=""><br> -->
+    <img width="100%" src="" id="screenshot"><br>
+
+    <button onclick="getScreenshot()">Get Screenshot</button><br>
+    <button onclick="zoomUp()">Zoom In</button>
+    <button onclick="zoomOut()">Zoom Out</button>
+    <button onclick="zoomReset()">Reset Zoom</button>
+
+    <script>
+      require('./renderer.js')
+      require('./ipcRenderer.js')
+      let win
+      const newWin = () => { win = window.open('https://electronjs.org', '_blank', 'width=400,height=400,alwaysOntTop=true') }
+      const closeWin = () => { win.close() }
+      const winStyle = () => { win.eval('document.body.style.fontFamily="Comic Sans MS"') }
+
+      const { webFrame, desktopCapturer } = require('electron')
+
+      const zoomUp = () => {
+        webFrame.setZoomLevel(webFrame.getZoomLevel() + 1)
+      }
+      const zoomOut = () => {
+        webFrame.setZoomLevel(webFrame.getZoomLevel() - 1)
+      }
+      const zoomReset = () => {
+        webFrame.setZoomLevel(1)
+      }
+      // What resources are used in the webFrame
+      console.log(webFrame.getResourceUsage())
+
+      // desktopCapturer.getSources({ types: ['screen'] }).then(res => console.log(res))
+      const getScreenshot = async () => {
+        const res = await desktopCapturer.getSources({ types: ['screen', 'window'], thumbnailSize: { width: 1920, height: 1080 } })
+        console.log(res);
+        document.getElementById('screenshot').src = res[0].thumbnail.toDataURL()
+      }
+
+    </script>
+  </body>
+</html>
